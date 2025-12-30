@@ -51,11 +51,18 @@ class WhisperASR(BaseASR):
     def _load_model(self, **kwargs):
         """Load the Whisper model"""
         try:
+            # Filter kwargs to only include valid WhisperModel constructor parameters
+            valid_params = {
+                'device_index', 'inter_threads', 'intra_threads',
+                'max_queued_batches', 'flash_attention', 'tensor_parallel', 'files'
+            }
+            model_kwargs = {k: v for k, v in kwargs.items() if k in valid_params}
+
             self.model = WhisperModel(
                 self.model_size,
                 device=self.device,
                 compute_type=self.compute_type,
-                **kwargs
+                **model_kwargs
             )
             logger.info(f"Whisper model loaded successfully: {self.model_size}")
         except Exception as e:
