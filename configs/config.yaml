@@ -11,11 +11,9 @@ general:
 diarization:
   model_name: "pyannote/speaker-diarization-3.1"
   # Use Community-1 when available: "pyannote/speaker-diarization-community-1"
+  device: "cuda"  # cuda or cpu
   min_speakers: null  # null for auto-detection
   max_speakers: null  # null for auto-detection
-  segmentation_batch_size: 32
-  embedding_batch_size: 32
-  embedding_exclude_overlap: true
   hf_token: null  # Set your HuggingFace token for pyannote models
 
 # Whisper ASR settings
