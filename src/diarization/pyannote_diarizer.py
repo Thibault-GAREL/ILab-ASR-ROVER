@@ -124,15 +124,26 @@ class PyannoteDiarizer:
         max_spk = max_speakers or self.max_speakers
 
         try:
+            # Load audio manually to avoid torchcodec dependency
+            # This is needed when FFmpeg is not installed
+            logger.info("Loading audio with torchaudio...")
+            waveform, sample_rate = torchaudio.load(audio_path)
+
+            # Prepare audio dict for pyannote (workaround for torchcodec issue)
+            audio_dict = {
+                "waveform": waveform,
+                "sample_rate": sample_rate
+            }
+
             # Run diarization
             if num_speakers:
                 diarization = self.pipeline(
-                    audio_path,
+                    audio_dict,
                     num_speakers=num_speakers
                 )
             else:
                 diarization = self.pipeline(
-                    audio_path,
+                    audio_dict,
                     min_speakers=min_spk,
                     max_speakers=max_spk
                 )
