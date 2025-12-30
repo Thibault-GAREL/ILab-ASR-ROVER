@@ -1,14 +1,15 @@
 # Core ASR dependencies
 torch>=2.0.0
 torchaudio>=2.0.0
-numpy>=1.24.0
+numpy>=1.22.0,<1.24  # Compatible with NeMo
 
 # Whisper ASR
 faster-whisper>=0.10.0
 openai-whisper>=20231117
 
-# NVIDIA NeMo for Canary
-nemo_toolkit[asr]>=1.22.0
+# NVIDIA NeMo for Canary (optional - see requirements-whisper-only.txt for simpler install)
+# Uncomment if you want to use Canary ASR:
+# nemo_toolkit[asr]>=1.22.0
 
 # Diarization
 pyannote.audio>=3.1.0

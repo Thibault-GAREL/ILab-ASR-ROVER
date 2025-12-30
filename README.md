@@ -65,7 +65,7 @@ Based on 2025 state-of-the-art models:
 - CUDA-capable GPU (recommended, 8GB+ VRAM)
 - HuggingFace account (for Pyannote models)
 
-### Quick Install
+### Quick Install (Recommended - Whisper Only)
 
 ```bash
 # Clone repository
@@ -76,12 +76,22 @@ cd ASR-Mixture_of_expert-ROVER
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 
-# Install dependencies
-pip install -r requirements.txt
-
-# Or install as package
-pip install -e .
+# Install dependencies (Whisper-only, no conflicts)
+pip install -r requirements-whisper-only.txt
 ```
+
+### Full Install with Canary (Advanced)
+
+⚠️ **Note:** NeMo has strict dependency requirements. See [INSTALL.md](INSTALL.md) for detailed instructions.
+
+```bash
+# Sequential installation to avoid conflicts
+pip install numpy==1.23.5
+pip install nemo_toolkit[asr]==1.23.0
+pip install -r requirements-full.txt
+```
+
+**See [INSTALL.md](INSTALL.md) for complete installation guide and troubleshooting.**
 
 ### Configuration
 

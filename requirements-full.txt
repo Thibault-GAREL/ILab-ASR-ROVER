@@ -1,0 +1,38 @@
+# Full Installation with ROVER Fusion (Whisper + Canary)
+# This includes NVIDIA NeMo for Canary ASR + ROVER fusion
+# WARNING: More complex installation with potential dependency conflicts
+
+# Core dependencies (numpy version compatible with NeMo)
+torch>=2.0.0,<2.2.0
+torchaudio>=2.0.0,<2.2.0
+numpy>=1.22.0,<1.24  # NeMo requires numpy<1.24
+
+# Whisper ASR
+faster-whisper>=0.10.0
+
+# NVIDIA NeMo for Canary
+nemo_toolkit[asr]==1.23.0
+
+# Diarization
+pyannote.audio>=3.1.0
+pyannote.core>=5.0.0
+
+# Audio processing
+soundfile>=0.12.1
+librosa>=0.10.0
+pydub>=0.25.1
+
+# Utilities
+tqdm>=4.65.0
+python-dotenv>=1.0.0
+pyyaml>=6.0
+
+# Development
+pytest>=7.4.0
+black>=23.0.0
+flake8>=6.0.0
+
+# Note: If you encounter conflicts, try installing in this order:
+# 1. pip install torch torchaudio numpy==1.23.5
+# 2. pip install nemo_toolkit[asr]==1.23.0
+# 3. pip install -r requirements-full.txt
