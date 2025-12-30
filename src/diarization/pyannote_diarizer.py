@@ -137,16 +137,23 @@ class PyannoteDiarizer:
 
             # Run diarization
             if num_speakers:
-                diarization = self.pipeline(
+                diarization_output = self.pipeline(
                     audio_dict,
                     num_speakers=num_speakers
                 )
             else:
-                diarization = self.pipeline(
+                diarization_output = self.pipeline(
                     audio_dict,
                     min_speakers=min_spk,
                     max_speakers=max_spk
                 )
+
+            # Extract Annotation from DiarizeOutput if needed
+            # When passing dict, pyannote returns DiarizeOutput with .diarization attribute
+            if hasattr(diarization_output, 'diarization'):
+                diarization = diarization_output.diarization
+            else:
+                diarization = diarization_output
 
             # Convert to SpeakerSegment objects
             segments = []
