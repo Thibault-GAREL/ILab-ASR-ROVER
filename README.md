@@ -62,54 +62,72 @@ Based on 2025 state-of-the-art models:
 ### Prerequisites
 
 - Python 3.8+
-- CUDA-capable GPU (recommended, 8GB+ VRAM)
-- HuggingFace account (for Pyannote models)
+- ~5GB disk space (for models)
+- HuggingFace account (free - for Pyannote models)
+- Optional: CUDA-capable GPU (8GB+ VRAM for faster processing)
 
-### Quick Install (Recommended - Whisper Only)
+### 🚀 Automated Installation (Recommended)
 
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/ASR-Mixture_of_expert-ROVER.git
+git clone https://github.com/Thibault-GAREL/ASR-Mixture_of_expert-ROVER.git
 cd ASR-Mixture_of_expert-ROVER
 
-# Create virtual environment
+# Run automated installation script
+bash install_dependencies.sh
+
+# Configure HuggingFace token
+python setup_token.py
+
+# Generate test audio and verify installation
+python generate_test_audio.py
+python test_diarization_fix.py
+```
+
+### Manual Installation
+
+```bash
+# Create virtual environment (recommended)
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 # Install dependencies (Whisper-only, no conflicts)
 pip install -r requirements-whisper-only.txt
+
+# Clear Python cache (important!)
+find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null
+find . -type f -name "*.pyc" -delete 2>/dev/null
+
+# Configure HuggingFace token
+python setup_token.py
 ```
 
 ### Full Install with Canary (Advanced)
 
-⚠️ **Note:** NeMo has strict dependency requirements. See [INSTALL.md](INSTALL.md) for detailed instructions.
+⚠️ **Note:** NeMo has strict dependency requirements and may conflict with other packages.
 
 ```bash
-# Sequential installation to avoid conflicts
-pip install numpy==1.23.5
-pip install nemo_toolkit[asr]==1.23.0
 pip install -r requirements-full.txt
 ```
 
-**See [INSTALL.md](INSTALL.md) for complete installation guide and troubleshooting.**
+For troubleshooting, see:
+- **[QUICK_START.md](QUICK_START.md)** - Complete quick start guide
+- **[FIX_CACHE_PYTHON.md](FIX_CACHE_PYTHON.md)** - Fix Python cache issues
+- **[WINDOWS-GUIDE.md](WINDOWS-GUIDE.md)** - Windows-specific instructions
 
-### Configuration
+### HuggingFace Configuration
 
-1. Copy environment template:
+You must accept the licenses for these Pyannote models:
+1. https://huggingface.co/pyannote/speaker-diarization-3.1
+2. https://huggingface.co/pyannote/segmentation-3.0
+3. https://huggingface.co/pyannote/speaker-diarization-community-1
+4. https://huggingface.co/pyannote/wespeaker-voxceleb-resnet34-LM
+5. https://huggingface.co/pyannote/VoiceActivityDetection-PyanNet-ONNX
+
+Then run:
 ```bash
-cp .env.example .env
-```
-
-2. Set your HuggingFace token in `.env`:
-```bash
-HF_TOKEN=your_huggingface_token_here
-```
-
-Get your token at: https://huggingface.co/settings/tokens
-
-3. (Optional) For NVIDIA Canary, set NGC API key:
-```bash
-NGC_API_KEY=your_ngc_api_key_here
+python setup_token.py  # Interactive token setup
+python diagnostic_hf.py  # Verify access to all models
 ```
 
 ## Quick Start
@@ -219,24 +237,54 @@ pipeline = MeetingTranscriptionPipeline(
 
 ## Examples
 
-### 1. Basic Transcription
-```python
-python examples/basic_transcription.py
-```
+See **[QUICK_START.md](QUICK_START.md)** for comprehensive usage guide.
 
-### 2. Custom Configuration
-```python
-python examples/custom_config.py
-```
-
-### 3. Whisper Only (No Canary)
-```python
-python examples/whisper_only.py
-```
-
-### 4. Command-Line Interface
+### 1. Interactive Examples Menu
 ```bash
-python examples/cli_transcribe.py audio.wav --language en --num-speakers 2
+python examples/basic_usage.py
+```
+
+This provides an interactive menu with 6 different examples:
+- Simple transcription
+- Transcription with speaker identification
+- Saving results to JSON
+- Forcing specific language
+- Batch processing multiple files
+- Custom configuration
+
+### 2. Command-Line Interface
+```bash
+# Basic transcription with auto-detection
+python examples/cli_transcribe.py meeting.wav --whisper-only
+
+# Specify language and speakers
+python examples/cli_transcribe.py meeting.wav \
+    --language fr \
+    --num-speakers 3 \
+    --whisper-only
+
+# Custom output file
+python examples/cli_transcribe.py meeting.wav --output results/transcript.json
+```
+
+### 3. Programmatic Usage
+```python
+from src.pipeline import TranscriptionPipeline
+
+# Initialize (Whisper-only mode recommended)
+pipeline = TranscriptionPipeline(
+    config_path="configs/config.yaml",
+    whisper_only=True
+)
+
+# Transcribe
+result = pipeline.transcribe("meeting.wav")
+
+# Access results
+print(f"Text: {result.text}")
+print(f"Language: {result.language}")
+for seg in result.segments:
+    print(f"[{seg.speaker}] {seg.text}")
 ```
 
 ## Output Formats
@@ -366,26 +414,60 @@ print(f"Confidence: {result.confidence}")
 
 ## Troubleshooting
 
-### Issue: HuggingFace Token Error
-**Solution**: Set `HF_TOKEN` environment variable or in `.env` file
+**See [FIX_CACHE_PYTHON.md](FIX_CACHE_PYTHON.md) for detailed troubleshooting guide.**
+
+### Issue: DiarizeOutput AttributeError
+**Symptom**: `AttributeError: 'DiarizeOutput' object has no attribute 'itertracks'`
+
+**Solution**: Clear Python cache
+```bash
+find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null
+find . -type f -name "*.pyc" -delete 2>/dev/null
+# Restart your terminal/IDE, then retry
+```
+
+### Issue: HuggingFace 401 Unauthorized
+**Solution**: Accept model licenses and set token
+```bash
+python diagnostic_hf.py  # Identifies which licenses you're missing
+python setup_token.py    # Set up your HF token
+```
 
 ### Issue: CUDA Out of Memory
-**Solution**: Reduce model sizes or use CPU:
-```python
-whisper_config={"model_size": "medium", "compute_type": "int8"}
+**Solution**: Use CPU or reduce model sizes
+```yaml
+# In config.yaml
+whisper:
+  device: "cpu"
+  compute_type: "int8"
+  model_size: "medium"  # Instead of "large-v3"
 ```
 
-### Issue: Canary Model Not Loading
-**Solution**: Use Whisper-only mode:
-```python
-pipeline = MeetingTranscriptionPipeline(use_canary=False)
-```
-
-### Issue: Slow Processing
+### Issue: Slow Processing on CPU
 **Solution**:
-- Use GPU instead of CPU
-- Reduce Whisper model size (`medium` instead of `large-v3`)
-- Disable VAD filter for shorter files
+- Use smaller Whisper model: `medium` instead of `large-v3`
+- Reduce beam size: `beam_size: 1` (faster, slightly less accurate)
+- Use Whisper-only mode (skip ROVER fusion)
+
+### Issue: Dependency Conflicts with NeMo
+**Solution**: Use Whisper-only mode
+```bash
+pip install -r requirements-whisper-only.txt
+python examples/cli_transcribe.py audio.wav --whisper-only
+```
+
+## Helper Tools
+
+The repository includes several diagnostic and setup tools:
+
+| Tool | Purpose |
+|------|---------|
+| `setup_token.py` | Interactive HuggingFace token setup |
+| `diagnostic_hf.py` | Diagnose HuggingFace access issues |
+| `generate_test_audio.py` | Generate test WAV files |
+| `test_diarization_fix.py` | Test diarization module |
+| `install_dependencies.sh` | Automated dependency installation |
+| `examples/basic_usage.py` | Interactive examples menu |
 
 ## Performance Tuning
 
