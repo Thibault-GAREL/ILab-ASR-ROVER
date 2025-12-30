@@ -75,9 +75,15 @@ except Exception as e:
 # Test 5: Check HuggingFace token
 print("\n5. Vérification token HuggingFace...")
 import os
-from dotenv import load_dotenv
 
-load_dotenv()
+# Try to load .env file if dotenv is available
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    print("   ⚠ python-dotenv pas installé (optionnel)")
+    print("   → Installez avec: pip install python-dotenv")
+
 hf_token = os.getenv("HF_TOKEN")
 
 if hf_token:
