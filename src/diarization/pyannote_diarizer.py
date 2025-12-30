@@ -85,7 +85,7 @@ class PyannoteDiarizer:
         try:
             self.pipeline = Pipeline.from_pretrained(
                 self.model_name,
-                use_auth_token=self.hf_token
+                token=self.hf_token
             )
 
             if self.device == "cuda" and torch.cuda.is_available():
