@@ -73,11 +73,18 @@ class CanaryASR(BaseASR):
     def _load_model(self, **kwargs):
         """Load the Canary model"""
         try:
+            # Filter kwargs - from_pretrained() only accepts specific parameters
+            # Remove runtime parameters that should not be passed to model loading
+            load_kwargs = {k: v for k, v in kwargs.items()
+                          if k not in ['batch_size', 'language', 'decode_method',
+                                      'beam_width', 'preserve_alignment',
+                                      'compute_timestamps', 'compute_word_confidence']}
+
             # Load pretrained Canary model
             self.model = EncDecMultiTaskModel.from_pretrained(
                 model_name=self.model_name,
                 map_location=self.device,
-                **kwargs
+                **load_kwargs
             )
 
             # Set to evaluation mode
