@@ -149,10 +149,14 @@ class PyannoteDiarizer:
                 )
 
             # Extract Annotation from DiarizeOutput if needed
-            # When passing dict, pyannote returns DiarizeOutput with .diarization attribute
-            if hasattr(diarization_output, 'diarization'):
+            # In pyannote.audio 4.x, DiarizeOutput has the Annotation in .speaker_diarization
+            if hasattr(diarization_output, 'speaker_diarization'):
+                diarization = diarization_output.speaker_diarization
+            elif hasattr(diarization_output, 'diarization'):
+                # Fallback for older versions
                 diarization = diarization_output.diarization
             else:
+                # Already an Annotation object
                 diarization = diarization_output
 
             # Convert to SpeakerSegment objects
