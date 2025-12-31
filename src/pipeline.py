@@ -188,14 +188,17 @@ class MeetingTranscriptionPipeline:
         # Stage 1: Speaker diarization
         logger.info("Stage 1/4: Speaker diarization")
         diarization_start = time.time()
-        speaker_segments = self.diarizer.diarize(
+        diarization_result = self.diarizer.diarize(
             audio_path,
             num_speakers=num_speakers,
             min_speakers=min_speakers,
             max_speakers=max_speakers
         )
+        speaker_segments = diarization_result.segments  # Extract segments list
         diarization_time = time.time() - diarization_start
-        logger.info(f"Diarization complete in {diarization_time:.2f}s")
+        logger.info(f"Diarization complete in {diarization_time:.2f}s - "
+                   f"{diarization_result.num_speakers} speakers, "
+                   f"{len(speaker_segments)} segments")
 
         # Stage 2: Whisper transcription
         logger.info("Stage 2/4: Whisper ASR")

@@ -37,6 +37,36 @@ class SpeakerSegment:
         }
 
 
+@dataclass
+class DiarizeResult:
+    """Result of speaker diarization containing segments and speaker information"""
+    segments: List[SpeakerSegment]
+
+    @property
+    def speakers(self) -> List[str]:
+        """Get list of unique speakers"""
+        return sorted(set(seg.speaker for seg in self.segments))
+
+    @property
+    def num_speakers(self) -> int:
+        """Get number of unique speakers"""
+        return len(self.speakers)
+
+    @property
+    def total_duration(self) -> float:
+        """Get total duration of all speech segments"""
+        return sum(seg.duration() for seg in self.segments)
+
+    def to_dict(self) -> Dict:
+        """Convert to dictionary format"""
+        return {
+            "segments": [seg.to_dict() for seg in self.segments],
+            "speakers": self.speakers,
+            "num_speakers": self.num_speakers,
+            "total_duration": self.total_duration
+        }
+
+
 class PyannoteDiarizer:
     """
     Speaker diarization using Pyannote.audio
@@ -104,7 +134,7 @@ class PyannoteDiarizer:
         num_speakers: Optional[int] = None,
         min_speakers: Optional[int] = None,
         max_speakers: Optional[int] = None,
-    ) -> List[SpeakerSegment]:
+    ) -> DiarizeResult:
         """
         Perform speaker diarization on an audio file
 
@@ -115,7 +145,7 @@ class PyannoteDiarizer:
             max_speakers: Maximum speakers (overrides init value)
 
         Returns:
-            List of SpeakerSegment objects
+            DiarizeResult object containing segments and speaker information
         """
         logger.info(f"Diarizing: {audio_path}")
 
@@ -170,16 +200,16 @@ class PyannoteDiarizer:
                 )
                 segments.append(segment)
 
-            # Log statistics
-            unique_speakers = len(set(seg.speaker for seg in segments))
-            total_duration = sum(seg.duration() for seg in segments)
+            # Create result object
+            result = DiarizeResult(segments=segments)
 
+            # Log statistics
             logger.info(
-                f"Diarization complete: {len(segments)} segments, "
-                f"{unique_speakers} speakers, {total_duration:.2f}s total speech"
+                f"Diarization complete: {len(result.segments)} segments, "
+                f"{result.num_speakers} speakers, {result.total_duration:.2f}s total speech"
             )
 
-            return segments
+            return result
 
         except Exception as e:
             logger.error(f"Diarization failed: {e}")

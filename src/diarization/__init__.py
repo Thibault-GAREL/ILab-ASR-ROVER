@@ -1,5 +1,5 @@
 """Speaker diarization module using Pyannote"""
 
-from .pyannote_diarizer import PyannoteDiarizer
+from .pyannote_diarizer import PyannoteDiarizer, DiarizeResult, SpeakerSegment
 
-__all__ = ["PyannoteDiarizer"]
+__all__ = ["PyannoteDiarizer", "DiarizeResult", "SpeakerSegment"]
