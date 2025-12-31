@@ -2,7 +2,7 @@
 
 # General settings
 general:
-  device: "cuda"  # cuda, cpu, or auto
+  device: "cpu"  # cuda, cpu, or auto
   num_threads: 4
   output_format: "json"  # json, txt, srt, vtt
   log_level: "INFO"
@@ -11,7 +11,7 @@ general:
 diarization:
   model_name: "pyannote/speaker-diarization-3.1"
   # Use Community-1 when available: "pyannote/speaker-diarization-community-1"
-  device: "cuda"  # cuda or cpu
+  device: "cpu"  # cuda or cpu
   min_speakers: null  # null for auto-detection
   max_speakers: null  # null for auto-detection
   hf_token: null  # Set your HuggingFace token for pyannote models
@@ -19,8 +19,8 @@ diarization:
 # Whisper ASR settings
 whisper:
   model_size: "large-v3"  # tiny, base, small, medium, large-v1, large-v2, large-v3
-  device: "cuda"
-  compute_type: "float16"  # float16, int8, int8_float16
+  device: "cpu"
+  compute_type: "int8"  # float16, int8, int8_float16
   language: null  # null for auto-detection, or "en", "fr"
   beam_size: 5
   best_of: 5
@@ -40,7 +40,7 @@ whisper:
 # Canary ASR settings
 canary:
   model_name: "nvidia/canary-1b"  # or canary-qwen-2.5b when available
-  device: "cuda"
+  device: "cpu"
   batch_size: 16
   language: null  # null for auto, or "en", "fr", "es", "de"
   decode_method: "greedy"  # greedy or beam
