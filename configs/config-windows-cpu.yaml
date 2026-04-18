@@ -1,0 +1,76 @@
+# Configuration optimisée pour Windows (CPU uniquement)
+
+# General settings
+general:
+  device: "cpu"
+  num_threads: 4
+  output_format: "json"
+  log_level: "INFO"
+
+# Diarization settings (Pyannote)
+diarization:
+  model_name: "pyannote/speaker-diarization-3.1"
+  device: "cpu"
+  min_speakers: null
+  max_speakers: null
+  hf_token: null  # Will be loaded from .env or environment
+
+# Whisper ASR settings (optimized for CPU)
+whisper:
+  model_size: "medium"  # Use medium on CPU for better speed
+  device: "cpu"
+  compute_type: "int8"  # int8 is faster on CPU
+  language: null  # null for auto-detection, or "en", "fr"
+  beam_size: 3  # Reduced for faster CPU processing
+  best_of: 3
+  temperature: [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
+  compression_ratio_threshold: 2.4
+  log_prob_threshold: -1.0
+  no_speech_threshold: 0.6
+  condition_on_previous_text: true
+  word_timestamps: true
+  vad_filter: true
+  vad_parameters:
+    threshold: 0.5
+    min_speech_duration_ms: 250
+    max_speech_duration_s: null
+    min_silence_duration_ms: 2000
+
+# Canary ASR settings (disabled for CPU-only mode)
+canary:
+  model_name: "nvidia/canary-1b"
+  device: "cpu"
+  batch_size: 4  # Reduced for CPU
+  language: null
+  decode_method: "greedy"
+  beam_width: 8  # Reduced for CPU
+  preserve_alignment: true
+  compute_timestamps: true
+  compute_word_confidence: true
+
+# ROVER settings
+rover:
+  voting_method: "confidence_weighted"
+  confidence_weights:
+    whisper: 1.0
+    canary: 1.2
+  alignment_method: "word_level"
+  tie_breaking: "highest_confidence"
+  min_confidence_threshold: 0.3
+  word_error_tolerance: 0.15
+
+# Audio preprocessing
+audio:
+  sample_rate: 16000
+  normalize: true
+  trim_silence: true
+  silence_threshold: -40
+
+# Output settings
+output:
+  include_timestamps: true
+  include_confidence_scores: true
+  include_speaker_labels: true
+  include_word_level_info: true
+  save_intermediate_results: false
+  format_timestamps: "srt"

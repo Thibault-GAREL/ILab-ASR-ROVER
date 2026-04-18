@@ -1,0 +1,30 @@
+# Whisper-Only Installation (Recommended for easier setup)
+# This version excludes NVIDIA Canary and uses only Whisper ASR
+# Perfect for most use cases and avoids dependency conflicts
+
+# Core dependencies
+torch>=2.0.0
+torchaudio>=2.0.0
+numpy>=1.24.0
+
+# Whisper ASR (faster-whisper is optimized version)
+faster-whisper>=0.10.0
+
+# Diarization
+pyannote.audio>=3.1.0
+pyannote.core>=5.0.0
+
+# Audio processing
+soundfile>=0.12.1
+librosa>=0.10.0
+pydub>=0.25.1
+
+# Utilities
+tqdm>=4.65.0
+python-dotenv>=1.0.0
+pyyaml>=6.0
+
+# Development
+pytest>=7.4.0
+black>=23.0.0
+flake8>=6.0.0
